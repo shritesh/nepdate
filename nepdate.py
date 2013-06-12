@@ -125,7 +125,7 @@ bs[2088]=(30,31,32,32,30,31,30,30,29,30,30,30)
 bs[2089]=(30,32,31,32,31,30,30,30,29,30,30,30)
 bs[2090]=(30,32,31,32,31,30,30,30,29,30,30,30)
 
-def date_from_tuple(self,tuple_to_convert):
+def date_from_tuple(tuple_to_convert):
     '''
     Returns the given tuple as datetime.date object
     
@@ -135,7 +135,7 @@ def date_from_tuple(self,tuple_to_convert):
     (year, month, day) = tuple_to_convert
     return datetime.date(year,month,day)
 
-def tuple_from_date(self,date_to_convert):
+def tuple_from_date(date_to_convert):
     '''
     Returns the given date object as tuple in the format (year,month,day)
     
@@ -145,7 +145,7 @@ def tuple_from_date(self,date_to_convert):
     (year, month, day)  = (date_to_convert.year, date_to_convert.month, date_to_convert.day)
     return (year, month, day)
 
-def count_ad_days(self,begin_ad_date,end_ad_date):
+def count_ad_days(begin_ad_date,end_ad_date):
     '''
     Returns the number of days between the two given A.D. dates.
 
@@ -153,12 +153,12 @@ def count_ad_days(self,begin_ad_date,end_ad_date):
     end_ad_date : A tuple in the format (year,month,day) that specify the date to end counting.
     
     '''
-    date_begin = self.date_from_tuple(begin_ad_date)
-    date_end = self.date_from_tuple(end_ad_date)
+    date_begin = date_from_tuple(begin_ad_date)
+    date_end = date_from_tuple(end_ad_date)
     delta = date_end - date_begin
     return delta.days
 
-def count_bs_days(self,begin_bs_date,end_bs_date):
+def count_bs_days(begin_bs_date,end_bs_date):
     '''
     Returns the number of days between the two given B.S. dates.
 
@@ -191,23 +191,23 @@ def count_bs_days(self,begin_bs_date,end_bs_date):
     days = 0            
     #1) First add total days in all the years
     for year in range(begin_year, end_year + 1):  
-        for days_in_month in self.bs[year]:
+        for days_in_month in bs[year]:
             days = days + days_in_month
     #2) Subtract the days from first (n-1) months of the beginning year
     for month in range(0,begin_month):
-        days = days - self.bs[begin_year][month]
+        days = days - bs[begin_year][month]
     #3) Add the number of days from the last month of the beginning year
-    days = days + self.bs[begin_year][12-1]
+    days = days + bs[begin_year][12-1]
     #4) Subtract the days from the last months from the end year
     for month in range(end_month - 1,12):
-        days = days - self.bs[end_year][month]
+        days = days - bs[end_year][month]
     #5) Add the beginning days excluding the day itself
     days = days - begin_day - 1
     #5) Add the last remaining days excluding the day itself
     days = days + end_day - 1
     return days
     
-def add_ad_days(self,ad_date,num_days):
+def add_ad_days(ad_date,num_days):
     '''
     Adds the given number of days to the given A.D. date and returns it as a tuple in the format (year,month,day)
     
@@ -215,11 +215,11 @@ def add_ad_days(self,ad_date,num_days):
     num_days : Number of days to add to the given date
      
     '''
-    date = self.date_from_tuple(ad_date)
+    date = date_from_tuple(ad_date)
     day = datetime.timedelta(days=num_days)
-    return self.tuple_from_date(date + day)
+    return tuple_from_date(date + day)
 
-def add_bs_days(self,bs_date,num_days):
+def add_bs_days(bs_date,num_days):
     '''
     Adds the given number of days to the given B.S. date and returns it as a tuple in the format (year,month,day)
     
@@ -240,8 +240,8 @@ def add_bs_days(self,bs_date,num_days):
     #1) Add the total number of days to the original days
     day = day + num_days
     #2) Until the number of days becomes applicable to the current month, subtract the days by the number of days in the current month and increase the month
-    while day > self.bs[year][month - 1]:
-        day = day - self.bs[year][month- 1]
+    while day > bs[year][month - 1]:
+        day = day - bs[year][month- 1]
         month = month + 1
         #3) If month reaches 12, increase the year by 1 and set the month to 1
         if month > 12:
@@ -249,7 +249,7 @@ def add_bs_days(self,bs_date,num_days):
             year = year + 1
     return (year, month, day)
 
-def bs2ad(self,bs_date):
+def bs2ad(bs_date):
     '''
     Returns the A.D. equivalent date as a tuple in the format (year,month,day) if the date is within range, else returns None
     
@@ -260,10 +260,10 @@ def bs2ad(self,bs_date):
     if year < 2000 or year > 2089 or month < 1 or month > 12 or day < 1 or day > 32:
         return None
     else:
-        date_delta = self.count_bs_days(self.bs_equiv, bs_date)
-        return self.add_ad_days(self.ad_equiv, date_delta)
+        date_delta = count_bs_days(bs_equiv, bs_date)
+        return add_ad_days(ad_equiv, date_delta)
 
-def ad2bs(self,ad_date):
+def ad2bs(ad_date):
     '''
     Returns the B.S. equivalent date as a tuple in the format (year,month,day) if the date is within range, else returns None
     
@@ -273,5 +273,5 @@ def ad2bs(self,ad_date):
     if year < 1944 or year > 2033 or month < 1 or month > 12 or day < 1 or day > 31:
         return None
     else:
-        date_delta = self.count_ad_days(self.ad_equiv, ad_date)
-        return self.add_bs_days(self.bs_equiv, date_delta)
+        date_delta = count_ad_days(ad_equiv, ad_date)
+        return add_bs_days(bs_equiv, date_delta)
